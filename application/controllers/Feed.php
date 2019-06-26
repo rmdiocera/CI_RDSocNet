@@ -12,21 +12,6 @@
             $this->load->view('feed/'.$page, $data);
             $this->load->view('templates/footer');
         }
-
-        // public function post($slug = NULL) {
-        //     $data['post'] = $this->Feed_mdl->get_feed($slug);
-            
-        //     if (empty($data['post'])) {
-        //         show_404();
-        //     }
-
-        //     $data['title'] = $data['post']['title'];
-
-        //     $this->load->view('templates/header');
-        //     // $this->load->view('feed/post', $data);
-        //     $this->load->view('posts/post', $data);
-        //     $this->load->view('templates/footer');
-        // }
     }
 
 ?>
