@@ -14,6 +14,11 @@
             $this->load->view('post/post', $data);
             $this->load->view('templates/footer');
         }
+
+        public function delete($id) {
+            $this->Feed_mdl->delete_post($id);
+            redirect();
+        }
     }
 
 ?>
