@@ -6,8 +6,12 @@ class Feed_mdl extends CI_Model
         $this->load->database();
     }
 
-    public function get_feed($slug = FALSE)
+    public function get_feed($slug = FALSE, $limit = FALSE, $offset = FALSE)
     {
+        if ($limit) {
+            $this->db->limit($limit, $offset);
+        }
+
         if ($slug === FALSE) {
             $this->db->order_by('id', 'DESC');
             $query = $this->db->get('feed');
@@ -18,7 +22,7 @@ class Feed_mdl extends CI_Model
         return $query->row_array();
     }
 
-    public function add_post()
+    public function add_post($post_image)
     {
         function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
         {
@@ -33,8 +37,11 @@ class Feed_mdl extends CI_Model
         $slug = random_str(20);
         $data = array(
             'title' => 'Test',
+            'posted_by' => $this->session->userdata('name'),
             'slug' => $slug,
-            'body' => $this->input->post('post-text')
+            'body' => $this->input->post('post-text'),
+            'post_image' => $post_image,
+            'user_id' => $this->session->userdata('user_id')
         );
 
         return $this->db->insert('feed', $data);
@@ -49,6 +56,7 @@ class Feed_mdl extends CI_Model
 			return false;
 		}
     }
+
 
     public function edit() {
         $id = $this->input->get('id');
