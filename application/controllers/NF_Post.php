@@ -1,4 +1,5 @@
 <?php
+    require_once('vendor/autoload.php');
     class NF_Post extends CI_Controller {
 
         public function post($slug = NULL) {
@@ -19,6 +20,7 @@
             $this->Feed_mdl->delete_post($id);
             redirect();
         }
+
     }
 
 ?>
