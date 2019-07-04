@@ -17,14 +17,52 @@
     <div class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a href="<?= base_url();?>" class="navbar-brand">BookFace</a>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
+            <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarResponsive">
+                <?php if(!$this->session->userdata('logged_in')) : ?>
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="<?= base_url();?>">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url();?>pages/about">About</a></li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="<?= base_url();?>about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url();?>login">Login</a></li>    
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url();?>register">Create an Account</a></li>
                 </ul>
+                <?php endif; ?>
+                <?php if($this->session->userdata('logged_in')) : ?>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url();?>feed">Latest Posts</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link"><?= $this->session->userdata('username') ?></a></li>    
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url();?>logout">Logout</a></li>
+                </ul>
+                <?php endif; ?>
+
             </div>
         </div>
     </div>
+
+        <div class="container mt-3">
+            <!-- User registration -->
+            <?php if($this->session->flashdata('user_registered')): ?>
+            <?='<p class="alert alert-success">'.$this->session->flashdata('user_registered').'</p>'?>
+            <?php endif ?>
+
+            <!-- User login -->
+            <?php if($this->session->flashdata('user_login_failed')): ?>
+            <?='<p class="alert alert-danger">'.$this->session->flashdata('user_login_failed').'</p>'?>
+            <?php endif ?>
+            
+            <!-- Post flash data -->
+            <?php if($this->session->flashdata('post_success')): ?>
+            <?='<p class="alert alert-success">'.$this->session->flashdata('post_success').'</p>'?>
+            <?php endif ?>
+            <?php if($this->session->flashdata('post_updated')): ?>
+            <?='<p class="alert alert-success">'.$this->session->flashdata('post_updated').'</p>'?>
+            <?php endif ?>
+            <?php if($this->session->flashdata('post_deleted')): ?>
+            <?='<p class="alert alert-success">'.$this->session->flashdata('post_deleted').'</p>'?>
+            <?php endif ?>
+
+        </div>
 
