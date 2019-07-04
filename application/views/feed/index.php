@@ -6,21 +6,57 @@
 
 <div class="container mt-3 mb-5">
     <?= validation_errors(); ?>
-    <?= form_open('feed/index'); ?>
+    <?= form_open_multipart('feed/index'); ?>
     <div class="form-group">
         <div class="form-group">
             <label>Post your message here!</label>
             <textarea class="form-control" name="post-text" rows="3" placeholder="Share what's happening"></textarea>
         </div>
-        <button type="submit" class="btn btn-dark float-right">Post</button>
+        <div class="form-group">
+            <label>Upload Image</label>
+            <input type="file" name="userfile" size="20">
+            <button type="submit" class="btn btn-dark float-right">Post</button>
+        </div>
     </div>
     </form>
 </div>
 
-<!-- </?php foreach ($feed as $post) : ?> -->
+<?php
+    $timeAgo = new Westsworld\TimeAgo();
+
+?>
+
+<?php foreach ($feed as $post) : ?>
     <div class="container mt-3" id="nf-post">
-        
+        <div class="my-3">
+            <h5><strong><?= $post['posted_by'] ?></strong></h5>
+            <span class="post-date text-center px-2 py-1"><?= $timeAgo->inWordsFromStrings($post['created_at']) ?></span>
+            <p class="my-2"><?= word_limiter($post['body'], 30) ?></p><br>
+                <?php if ($post['post_image'] != 'noimage.jpg') : ?>
+                <div class="col-md-6 offset-3">
+                    <img class="post-image" src="<?= site_url(); ?>assets/images/posts/<?= $post['post_image'] ?>"></div>
+                <div class="my-5">
+                <?php endif ?>
+                <?php if ($this->session->userdata('user_id') == $post['user_id']) : ?>
+                    <a class="btn btn-dark float-left mr-2" href="http://localhost/ci-socmed/post/<?= $post['slug'] ?>">Read More</a>
+                    <a class="btn btn-primary text-white float-left mr-2" id="btnEdit" data-toggle="modal" data-target="#editModal" data="<?= $post['id'] ?>">Edit Post</a>
+                    <form action="http://localhost/ci-socmed/feed/delete/<?= $post['id'] ?>" method="post" accept-charset="utf-8">
+                        <input type="submit" value="Delete" class="btn btn-danger float-left">
+                    </form>
+                    <?php endif; ?>
+                </div>
+        </div>
+        <div class="clearfix"></div>
     </div>
+<?php endforeach ?>
+
+<div class="container">
+    <div class="pagination justify-content-center">
+        <?php echo $this->pagination->create_links(); ?>
+    </div>
+</div>
+
+
 <!-- </?php endforeach ?>  -->
 
 
@@ -52,49 +88,52 @@
 
 <script type="text/javascript">
     $(function() {
-        showFeed();
 
         $(document).on('click', '#btnSave', function() {
             var url = $('#modalForm').attr('action');
-			var data = $('#modalForm').serialize();
-			//validate form
-			var editBody = $('textarea[name=edit-body]');
-			console.log({url, data, editBody});
+            var data = $('#modalForm').serialize();
+            //validate form
+            var editBody = $('textarea[name=edit-body]');
+            console.log({
+                url,
+                data,
+                editBody
+            });
             var hasText = true;
 
-            if(editBody.val() === ''){
+            if (editBody.val() === '') {
                 hasText = false;
-			}
+            }
 
-			if(hasText){
-				$.ajax({
-					type: 'ajax',
-					method: 'post',
-					url: url,
-					data: data,
-					async: false,
-					dataType: 'json',
-					success: function(response){
-						if(response.success){
-							$('#editModal').modal('hide');
-							$('#modalForm')[0].reset();
-							if (response.type=='add') {
-								// var type = 'added'
+            if (hasText) {
+                $.ajax({
+                    type: 'ajax',
+                    method: 'post',
+                    url: url,
+                    data: data,
+                    async: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            $('#editModal').modal('hide');
+                            $('#modalForm')[0].reset();
+                            if (response.type == 'add') {
+                                // var type = 'added'
                                 alert('Added');
-							} else if (response.type=='update'){
-								alert('Updated');
+                            } else if (response.type == 'update') {
+                                window.location.href = window.location.href;
                                 showFeed();
-							}
-							// $('.alert-success').html('Employee '+type+' successfully').fadeIn().delay(4000).fadeOut('slow');
-						} else {
-							alert('Error');
-						}
-					},
-					error: function(){
-						alert('Could not add data');
-					}
-				});
-			}
+                            }
+                            // $('.alert-success').html('Employee '+type+' successfully').fadeIn().delay(4000).fadeOut('slow');
+                        } else {
+                            alert('Error');
+                        }
+                    },
+                    error: function() {
+                        alert('Could not add data');
+                    }
+                });
+            }
         });
 
 
@@ -122,34 +161,5 @@
                 }
             });
         });
-
-
-        function showFeed() {
-            $.ajax({
-                type: 'ajax',
-                url: '<?= base_url()?>feed/showfeed',
-                async: false,
-                dataType: 'json',
-                success: function(data) {
-                    var html = '';
-                    var i;
-                    for (i = 0; i < data.length; i++) {
-                        html += '<h2>'+ data[i]['title'] + '</h2>' +
-                        '<span class="post_date text-center px-2 py-1"> Posted on ' + data[i]['created_at'] + ' </span>' +
-                        '<br><br>' +
-                        '<p class="my-2">' + data[i]['body'] + '</p><br>' +
-                        '<a class="btn btn-dark" href="localhost/ci-socmed/post' + data[i]['slug'] +'">Read More</a>' +
-                        '<form action="http://localhost/ci-socmed/feed/delete' + data[i]['id'] + '"method="post" accept-charset="utf-8">' +
-                        '<input type="submit" value="Delete" class="btn btn-danger">' +
-                        '</form>' +
-                        '<a class="btn btn-primary" id="btnEdit" data-toggle="modal" data-target="#editModal" data="' + data[i]['id'] + '">Edit Post</a>'
-                    }
-                    $('#nf-post').html(html);
-                },
-                error: function() {
-                    alert('Error');
-                }
-            });
-        }
     });
 </script>
